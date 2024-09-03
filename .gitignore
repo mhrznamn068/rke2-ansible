@@ -1,0 +1,41 @@
+# Ignore Python virtual environment and cache files
+venv/
+.env/
+__pycache__/
+*.py[cod]
+
+# Ansible specific
+*.retry
+*.log
+
+# Ignore temporary files and directories
+*.swp
+*.swo
+*.bak
+*.tmp
+*~
+
+# Ignore any inventory files (if generated or kept locally)
+inventory/
+hosts
+
+# Ignore SSH key files if stored locally for testing
+*.pem
+*.key
+
+# Ignore sensitive variables files (if present)
+vault_pass.txt
+group_vars/all/vault.yml
+host_vars/*/vault.yml
+
+# Ignore OS-generated files
+.DS_Store
+Thumbs.db
+
+# Ignore roles installed via ansible-galaxy
+roles/*
+
+test.inv
+local.site.yml
+local.site.yaml
+.env

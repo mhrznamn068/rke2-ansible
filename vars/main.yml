@@ -1,0 +1,16 @@
+---
+# vars file for rke2
+CLUSTER_NAME: cluster1
+ENV: prod
+DIRECTORIES:
+  - /etc/rancher/rke2
+TOKEN: tyuiopghhccvbnmerdtfgyhujk
+RKE2_VERSION: v1.30.2+rke2r1
+MASTER1_IP: 10.100.10.0
+MASTER2_IP: 10.100.10.1
+MASTER3_IP: 10.100.10.2
+ROOT_DOMAIN: example.com
+
+DISABLE_SWAP: False
+KUBECTL_VERSION: v1.27.4
+

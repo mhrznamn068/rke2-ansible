@@ -1,0 +1,18 @@
+---
+# handlers file for rke2
+- name: Restart RKE2 server service
+  ansible.builtin.service:
+    name: rke2-server
+    state: restarted
+
+- name: Retart RKE2 agent service
+  ansible.builtin.service:
+    name: rke2-agent
+    state: restarted
+
+- name: Reload Nginx
+  service:
+    name: nginx
+    state: reloaded
+  tags: nginx,reload
+

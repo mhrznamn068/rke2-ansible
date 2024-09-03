@@ -1,0 +1,21 @@
+token: {{ TOKEN }}
+{% if INDEX != 1 %}
+server: https://{{ MASTER1_IP }}:9345
+{% else %}
+{% endif %}
+write-kubeconfig-mode: "0644"
+tls-san:
+  - {{ CLUSTER_NAME }}.{{ ROOT_DOMAIN }}
+  - {{ MASTER1_IP }}
+  - {{ MASTER2_IP }}
+  - {{ MASTER3_IP }}
+  - {{ CLUSTER_NAME }}-{{ ENV }}-{{ NODE_ROLE }}-{{ INDEX }}.{{ ROOT_DOMAIN }}
+  - {{ CLUSTER_NAME }}-{{ ENV }}-{{ NODE_ROLE }}-{{ INDEX }}.{{ ROOT_DOMAIN }}
+  - {{ CLUSTER_NAME }}-{{ ENV }}-{{ NODE_ROLE }}-{{ INDEX }}.{{ ROOT_DOMAIN }}
+cni: 
+  - calico
+node-label:
+  - "node=master"
+  - "cluster_name={{ CLUSTER_NAME }}"
+node-taint:
+  - "CriticalAddonsOnly=true:NoExecute"

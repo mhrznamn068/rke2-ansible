@@ -1,0 +1,51 @@
+---
+- name: Set hostname
+  hostname:
+    name: "{{ CLUSTER_NAME }}-{{ ENV }}-{{ NODE_ROLE }}-{{ INDEX }}"
+    use: systemd
+  
+# Kubelet will not start if the system has swap enabled, so we are disabling swap using the below code.
+- name: Remove swapfile from /etc/fstab
+  mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  with_items:
+    - swap
+    - none
+  when: DISABLE_SWAP
+  tags: rke2, bootstrap, swap
+
+- name: Disable swap
+  command: swapoff -a
+  when: DISABLE_SWAP and ansible_swaptotal_mb > 0
+  tags: rke2, bootstrap, swap
+
+- name: Configure logrotate for K8s logs
+  copy:
+    src: "{{ item }}"
+    dest: /etc/logrotate.d/
+    owner: root
+    group: root
+    mode: 644
+  with_items:
+    - logrotate.d/allcontainerlogs
+    - logrotate.d/allpodlogs
+  tags: rke2, bootstrap, logrotate
+
+- name: Create required directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 755
+    owner: root
+    group: root
+  loop: "{{ DIRECTORIES }}"
+  tags: rke2, bootstrap, directories
+
+- name: Install kubectl
+  get_url:
+    url: https://dl.k8s.io/release/{{ KUBECTL_VERSION }}/bin/linux/amd64/kubectl
+    dest: /usr/bin/kubectl
+    mode: '0755'
+  tags: rke2, bootstrap, kubectl

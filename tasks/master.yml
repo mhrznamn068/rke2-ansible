@@ -1,0 +1,54 @@
+- name: Copy config file to master nodes
+  template:
+    src: configs/master/config.yml
+    dest: /etc/rancher/rke2/config.yaml
+  notify: Restart RKE2 server service
+  tags: rke2, config, master
+
+- name: Install RKE2 Server
+  shell: curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION={{ RKE2_VERSION }} sh -
+  args:
+    executable: /bin/bash
+    creates: /var/lib/rancher/rke2/bin/
+
+- name: Enable RKE2 server service
+  ansible.builtin.service:
+    name: rke2-server
+    enabled: yes
+
+- name: Start RKE2 server service on first master node
+  ansible.builtin.service:
+    name: rke2-server
+    state: started
+  when: INDEX == 1
+
+- name: Check RKE2 server status on first master node
+  ansible.builtin.systemd:
+    name: rke2-server
+    state: started
+    enabled: true
+  register: rke2_server_status
+  delegate_to: "{{ MASTER1_IP }}"
+
+- name: Set global fact for RKE2 server status
+  set_fact:
+    rke2_server_active: "{{ rke2_server_status.status.ActiveState == 'active' }}"
+  when: rke2_server_status is defined
+
+- name: Wait for RKE2 server to be active
+  wait_for:
+    port: 9345
+    delay: 15
+    timeout: 300
+  when: INDEX == 1
+
+- name: Debug rke2_server_status output
+  debug:
+    var: rke2_server_status.status.ActiveState
+  when: INDEX == 1
+
+- name: Start RKE2 server service on other master nodes
+  ansible.builtin.service:
+    name: rke2-server
+    state: started
+  when: (INDEX != 1) and (rke2_server_status is defined and rke2_server_status.status.ActiveState == 'active')
