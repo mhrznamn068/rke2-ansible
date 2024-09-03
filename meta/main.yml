@@ -1,14 +1,18 @@
+---
 galaxy_info:
   author: Aman Maharjan
   description: Ansible role to install configure highly avilable RKE2 kubernetes cluster
-  company: 
+  company: aman
   issue_tracker_url: https://github.com/mhrznamn068/rke2-ansible-role/issues
   license: license (GPL-2.0-or-later, MIT, etc)
-  min_ansible_version: 2.10
+  min_ansible_version: "2.10"
   platforms:
-  - name: Ubuntu
-    versions:
-    - above 18.04
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+        - jammy
+        - noble
   galaxy_tags: [k8s, kubernetes, rke2, rancher, rke]
 
 dependencies: []

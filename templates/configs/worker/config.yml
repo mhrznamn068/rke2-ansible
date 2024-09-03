@@ -1,2 +1,0 @@
-token: {{ TOKEN }}
-server: https://{{ MASTER1_IP }}:9345

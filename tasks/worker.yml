@@ -1,6 +1,7 @@
+---
 - name: Copy config file to worker nodes
   template:
-    src: configs/worker/config.yml
+    src: configs/worker/config.yml.j2
     dest: /etc/rancher/rke2/config.yaml
   notify: Retart RKE2 agent service
   tags: rke2, config, worker

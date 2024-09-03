@@ -1,6 +1,7 @@
+---
 - name: Copy config file to master nodes
   template:
-    src: configs/master/config.yml
+    src: configs/master/config.yml.j2
     dest: /etc/rancher/rke2/config.yaml
   notify: Restart RKE2 server service
   tags: rke2, config, master

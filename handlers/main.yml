@@ -15,4 +15,3 @@
     name: nginx
     state: reloaded
   tags: nginx,reload
-

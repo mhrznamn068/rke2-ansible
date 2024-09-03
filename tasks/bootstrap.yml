@@ -3,8 +3,7 @@
   hostname:
     name: "{{ CLUSTER_NAME }}-{{ ENV }}-{{ NODE_ROLE }}-{{ INDEX }}"
     use: systemd
-  
-# Kubelet will not start if the system has swap enabled, so we are disabling swap using the below code.
+
 - name: Remove swapfile from /etc/fstab
   mount:
     name: "{{ item }}"

@@ -17,4 +17,3 @@
 
 - name: IP Address
   debug: msg="{{ ansible_default_ipv4.address }}"
-
