@@ -28,14 +28,19 @@ This Ansible role automates the installation and configuration of RKE2 (Rancher 
 - `DISABLE_SWAP`: Additional flags to enable and disable swap
 - `KUBECTL_VERSION`: Kubectl Version
 ### Example Configuration:
+#### Install Role from Anisble Galaxy
+```bash
+ansible-galaxy role install mhrznamn068.rke2-ansible
+```
 
+#### Create playbook
 ```yaml
 # Example playbook
 ---
 - hosts: all
   become: true
   roles:
-    - role: ./rke2
+    - role: mhrznamn068.rke2-ansible
       vars:
         RKE2_VERSION: "v1.30.2+rke2r1"
         CLUSTER_NAME: "my-kubernetes-cluster"
@@ -47,6 +52,27 @@ This Ansible role automates the installation and configuration of RKE2 (Rancher 
         ROOT_DOMAIN: "example.com"
 ```
 
+#### Create inventory
+```bash
+touch inventory
+```
+#### Inventory Content
+```
+[master]
+master1 ansible_host=master1 NODE_ROLE=master INDEX=1
+master2 ansible_host=master2 NODE_ROLE=master INDEX=2
+master3 ansible_host=master3 NODE_ROLE=master INDEX=3
+
+[worker]
+worker1 ansible_host=worker1 NODE_ROLE=worker INDEX=1
+worker2 ansible_host=worker2 NODE_ROLE=worker INDEX=2
+
+[master:vars]
+ansible_python_interpreter=/usr/bin/python3
+
+[worker:vars]
+ansible_python_interpreter=/usr/bin/python3
+```
 ### Run the playbook
 ```bash
 ansible-playbook -i inventory rke2-playbook.yml
