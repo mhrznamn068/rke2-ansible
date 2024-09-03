@@ -5,7 +5,7 @@ galaxy_info:
   company: aman
   issue_tracker_url: https://github.com/mhrznamn068/rke2-ansible-role/issues
   license: license (GPL-2.0-or-later, MIT, etc)
-  min_ansible_version: "2.10"
+  min_ansible_version: "2.15"
   platforms:
     - name: Ubuntu
       versions:

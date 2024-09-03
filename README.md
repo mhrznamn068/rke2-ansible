@@ -97,3 +97,8 @@ sudo systemctl status rke2-agent
 ```bash
 kubectl --kubeconfig /etc/rancher/rke2/rke2.yaml get nodes
 ```
+
+### Uninstall
+```bash
+ansible-playbook -i inventory rke2-playbook.yml -t uninstall
+```

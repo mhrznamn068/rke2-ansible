@@ -1,0 +1,4 @@
+---
+- name: Uninstall RKE2
+  shell: /usr/local/bin/rke2-uninstall.sh
+  tags: uninstall, remove
