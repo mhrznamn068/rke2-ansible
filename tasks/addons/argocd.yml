@@ -1,0 +1,60 @@
+---
+- name: Create namespace if it doesn't exist
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: argocd
+  when: NODE_ROLE == "master" and INDEX == 1
+  tags: addons, argocd
+
+- name: Deploy latest version of argocd
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig }}"
+    name: argocd
+    chart_ref: argo/argo-cd
+    chart_version: "{{ argocd_version }}"
+    release_namespace: argocd
+  retries: 5
+  delay: 30
+  until: result is success
+  register: result
+  ignore_errors: true
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_argocd and argocd_custom_values is not defined
+  tags: addons, argocd
+
+- name: Configure argocd helm values
+  copy:
+    src: "{{ argocd_custom_values }}"
+    dest: /opt/rancher/rke2/helm-values/argocd.values.yml
+    owner: root
+    group: root
+    mode: 644
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_argocd and argocd_custom_values is defined
+  tags: addons, argocd
+
+- name: Deploy latest version of argocd
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig }}"
+    name: argocd
+    chart_ref: argocdcore/argocd
+    chart_version: "{{ argocd_version }}"
+    release_namespace: argocd
+    values_files:
+      - /opt/rancher/rke2/helm-values/argocd.values.yml
+  retries: 5
+  delay: 30
+  until: result is success
+  register: result
+  ignore_errors: true
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_argocd and argocd_custom_values is defined
+  tags: addons, argocd
+
+- name: Fail if argocd deployment fails after retries
+  fail:
+    msg: "argocd deployment failed after multiple attempts."
+  when: result is failed and NODE_ROLE == "master" and INDEX == 1 and enable_argocd
+  tags: addons, argocd

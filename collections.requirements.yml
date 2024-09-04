@@ -1,0 +1,5 @@
+# ansible-galaxy collection install -r collection.requirements.yml
+---
+collections:
+  - name: kubernetes.core
+    version: 5.0.0

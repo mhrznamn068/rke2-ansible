@@ -1,0 +1,60 @@
+---
+- name: Create namespace if it doesn't exist
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: monitoring
+  when: NODE_ROLE == "master" and INDEX == 1
+  tags: addons, prometheus
+
+- name: Deploy latest version of prometheus
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig }}"
+    name: prometheus
+    chart_ref: prometheus-community/prometheus
+    chart_version: "{{ prometheus_version }}"
+    release_namespace: monitoring
+  retries: 5
+  delay: 30
+  until: result is success
+  register: result
+  ignore_errors: true
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_prometheus and prometheus_custom_values is not defined
+  tags: addons, prometheus
+
+- name: Configure prometheus helm values
+  copy:
+    src: "{{ prometheus_custom_values }}"
+    dest: /opt/rancher/rke2/helm-values/prometheus.values.yml
+    owner: root
+    group: root
+    mode: 644
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_prometheus and prometheus_custom_values is defined
+  tags: addons, prometheus
+
+- name: Deploy latest version of prometheus
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig }}"
+    name: prometheus
+    chart_ref: prometheus-community/prometheus
+    chart_version: "{{ prometheus_version }}"
+    release_namespace: monitoring
+    values_files:
+      - /opt/rancher/rke2/helm-values/prometheus.values.yml
+  retries: 5
+  delay: 30
+  until: result is success
+  register: result
+  ignore_errors: true
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_prometheus and prometheus_custom_values is defined
+  tags: addons, prometheus
+
+- name: Fail if prometheus deployment fails after retries
+  fail:
+    msg: "prometheus deployment failed after multiple attempts."
+  when: result is failed and NODE_ROLE == "master" and INDEX == 1 and enable_prometheus
+  tags: addons, prometheus

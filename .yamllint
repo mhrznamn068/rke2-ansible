@@ -9,3 +9,4 @@ rules:
 
 ignore:
   - ci.yaml
+  - local.site.yml

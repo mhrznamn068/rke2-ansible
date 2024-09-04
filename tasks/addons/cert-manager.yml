@@ -1,0 +1,33 @@
+---
+- name: Create namespace if it doesn't exist
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: cert-manager
+  when: NODE_ROLE == "master" and INDEX == 1
+  tags: addons, cert-manager
+
+- name: Deploy latest version of cert-manager
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig }}"
+    name: cert-manager
+    chart_ref: jetstack/cert-manager
+    chart_version: "{{ cert_manager_version }}"
+    release_namespace: cert-manager
+  retries: 5
+  delay: 30
+  until: result is success
+  register: result
+  ignore_errors: true
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_cert_manager
+  tags: addons, cert-manager
+
+- name: Fail if cert-manager deployment fails after retries
+  fail:
+    msg: "Cert-manager deployment failed after multiple attempts."
+  when: result is failed and NODE_ROLE == "master" and INDEX == 1 and enable_cert_manager
+  tags: addons, cert-manager

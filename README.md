@@ -1,6 +1,6 @@
 # Ansible Role: Rancher RKE2 Configuration
 
-This Ansible role automates the installation and configuration of RKE2 (Rancher Kubernetes Engine 2) on your infrastructure. It handles all steps necessary to configure a fully functional RKE2 Kubernetes cluster.
+This Ansible role automates the installation and configuration of RKE2 (Rancher Kubernetes Engine 2) with various addons on your infrastructure. It handles all steps necessary to configure a fully functional RKE2 Kubernetes cluster.
 
 ## Requirements
 
@@ -11,6 +11,15 @@ This Ansible role automates the installation and configuration of RKE2 (Rancher 
 
 ## Role Variables
 
+### AddOns List
+
+ - `Cert Manager`
+ - `Rancher`
+ - `Longhorn`
+ - `Prometheus`
+ - `KEDA`
+ - `ArgoCD`
+ 
 ### Mandatory Variables:
 
 - `RKE2_VERSION`: Version of RKE2 to install (e.g., `v1.30.2+rke2r1`)
@@ -21,6 +30,28 @@ This Ansible role automates the installation and configuration of RKE2 (Rancher 
 - `MASTER2_IP`: Master Node 2 IP Address
 - `MASTER3_IP`: Master Node 3 IP Address
 - `ROOT_DOMAIN`: Root Domain to add in TLS SAN of master node
+
+
+### Optional Variables:
+- `enable_cert_manager`: Enable Cert-Manager(https://cert-manager.io/)
+- `cert_manager_version`: Cert-Manager Helm Chart version
+- `enable_rancher`: Enable Rancher UI(https://www.rancher.com/)
+- `rancher_version`: Rancher Helm Chart version
+- `rancher_custom_values`: Local file path to custom Rancher Helm Chart values
+- `enable_longhorn`: Enable Longhorn(https://longhorn.io/)
+- `longhorn_version`: Longhorn Helm Chart version
+- `longhorn_custom_values`: Local file path to custom Longhorn Helm Chart values
+- `enable_prometheus`: Enable prometheus(https://prometheus.io/)
+- `prometheus_version`: Prometheus Helm Chart version
+- `prometheus_custom_values`: Local file path to custom Prometheus Helm Chart values
+- `enable_keda`: Enable KEDA(https://keda.sh/)
+- `keda_version`: KEDA Helm Chart version
+- `keda_custom_values`: Local file path to custom KEDA Helm Chart values
+- `enable_argocd`: Enable ArgoCD(https://argo-cd.readthedocs.io/en/stable/)
+- `argocd_version`: ArgoCD Helm Chart version
+- `argocd_custom_values`: Local file path to custom argoCD Helm Chart values
+- `rke2_ingress_nginx_config`: RKE2 Ingress Nginx custom configs(https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
+
 
 ### Optional Variables:
 
@@ -50,6 +81,21 @@ ansible-galaxy role install mhrznamn068.rke2-ansible
         MASTER2_IP: "10.100.10.1"
         MASTER3_IP: "10.100.10.2"
         ROOT_DOMAIN: "example.com"
+        enable_cert_manager: false
+        cert_manager_version: "v1.7.1"
+        enable_rancher: true
+        rancher_version: 2.9.1
+        enable_longhorn: false
+        longhorn_version: 1.7.0
+        enable_prometheus: false
+        prometheus_version: 25.27.0
+        enable_keda: false
+        keda_version: 2.15.1
+        enable_argocd: false
+        argocd_version: 7.5.0
+        rke2_ingress_nginx_config: 
+          - proxy-real-ip-cidr: 0.0.0.0/0
+          - use-forwarded-headers: true
 ```
 
 #### Create inventory

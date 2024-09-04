@@ -1,0 +1,89 @@
+---
+- name: Create namespace if it doesn't exist
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: cattle-system
+  when: NODE_ROLE == "master" and INDEX == 1
+  tags: addons, rancher
+
+- name: Deploy latest version of rancher
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig }}"
+    name: rancher
+    chart_ref: rancher-stable/rancher
+    chart_version: "{{ rancher_version }}"
+    release_namespace: cattle-system
+    values:
+      hostname: "{{ ROOT_DOMAIN }}"
+  retries: 5
+  delay: 30
+  until: result is success
+  register: result
+  ignore_errors: true
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_rancher and rancher_custom_values is not defined
+  tags: addons, rancher
+
+- name: Configure rancher helm values
+  copy:
+    src: "{{ rancher_custom_values }}"
+    dest: /opt/rancher/rke2/helm-values/rancher.values.yml
+    owner: root
+    group: root
+    mode: 644
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_rancher and rancher_custom_values is defined
+  tags: addons, rancher
+
+- name: Deploy latest version of rancher
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig }}"
+    name: rancher
+    chart_ref: rancher-stable/rancher
+    chart_version: "{{ rancher_version }}"
+    release_namespace: cattle-system
+    values_files:
+      - /opt/rancher/rke2/helm-values/rancher.values.yml
+  retries: 5
+  delay: 30
+  until: result is success
+  register: result
+  ignore_errors: true
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_rancher and rancher_custom_values is defined
+  tags: addons, rancher
+
+- name: Fail if rancher deployment fails after retries
+  fail:
+    msg: "rancher deployment failed after multiple attempts."
+  when: result is failed and NODE_ROLE == "master" and INDEX == 1 and enable_rancher
+  tags: addons, rancher
+
+# - name: Retrieve Rancher bootstrap secret
+#   kubernetes.core.k8s_info:
+#     kubeconfig: "{{ kubeconfig }}"
+#     kind: Secret
+#     namespace: cattle-system
+#     name: bootstrap-secret
+#   register: rancher_bootstrap_secret
+#   when: NODE_ROLE == "master" and INDEX == 1 and enable_rancher
+#   tags: addons, rancher, bootstrap-password
+#
+# - debug:
+#     msg: "{{ rancher_bootstrap_secret }}"
+#   when: result is success and NODE_ROLE == "master" and INDEX == 1 and enable_rancher
+#   tags: addons, rancher, bootstrap-password
+#
+# - name: Decode Rancher bootstrap password
+#   set_fact:
+#     rancher_bootstrap_password: "{{ rancher_bootstrap_secret.resources[0].data.bootstrapPassword | b64decode }}"
+#   when: result is success and NODE_ROLE == "master" and INDEX == 1 and enable_rancher
+#   tags: addons, rancher, bootstrap-password
+#
+# - name: Display Rancher Bootstrap Password
+#   debug:
+#     msg: "Rancher Bootstrap Password: {{ rancher_bootstrap_password }}"
+#   when: result is success and NODE_ROLE == "master" and INDEX == 1 and enable_rancher
+#   tags: addons, rancher, bootstrap-password

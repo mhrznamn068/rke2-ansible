@@ -15,5 +15,8 @@
 - name: Distribution release
   debug: msg="{{ ansible_distribution_release }}"
 
+- name: OS Family
+  debug: msg="{{ ansible_os_family }}"
+
 - name: IP Address
   debug: msg="{{ ansible_default_ipv4.address }}"

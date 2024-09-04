@@ -48,3 +48,46 @@
     dest: /usr/bin/kubectl
     mode: '0755'
   tags: rke2, bootstrap, kubectl
+
+- name: Install dependencies (curl, tar)
+  apt:
+    name:
+      - curl
+      - tar
+    state: present
+  when: ansible_os_family == "Debian"
+  tags: rke2, bootstrap
+
+- name: Install dependencies (curl, tar) on RedHat/CentOS
+  yum:
+    name:
+      - curl
+      - tar
+    state: present
+  when: ansible_os_family == "RedHat"
+  tags: rke2, bootstrap
+
+- name: Download Helm install script
+  get_url:
+    url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    dest: /tmp/get_helm.sh
+    mode: '0755'
+  tags: rke2, bootstrap, helm
+
+- name: Change permissions to make the script executable
+  file:
+    path: /tmp/get_helm.sh
+    mode: '0755'
+  tags: rke2, bootstrap, helm
+
+- name: Run the Helm install script
+  command: /tmp/get_helm.sh
+  args:
+    creates: /usr/local/bin/helm
+  tags: rke2, bootstrap, helm
+
+- name: Verify Helm installation
+  command: helm version
+  register: helm_version
+  ignore_errors: true
+  tags: rke2, bootstrap, helm

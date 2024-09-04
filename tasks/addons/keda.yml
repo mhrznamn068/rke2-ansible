@@ -1,0 +1,60 @@
+---
+- name: Create namespace if it doesn't exist
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: keda
+  when: NODE_ROLE == "master" and INDEX == 1
+  tags: addons, keda
+
+- name: Deploy latest version of keda
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig }}"
+    name: keda
+    chart_ref: kedacore/keda
+    chart_version: "{{ keda_version }}"
+    release_namespace: keda
+  retries: 5
+  delay: 30
+  until: result is success
+  register: result
+  ignore_errors: true
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_keda and keda_custom_values is not defined
+  tags: addons, keda
+
+- name: Configure keda helm values
+  copy:
+    src: "{{ keda_custom_values }}"
+    dest: /opt/rancher/rke2/helm-values/keda.values.yml
+    owner: root
+    group: root
+    mode: 644
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_keda and keda_custom_values is defined
+  tags: addons, keda
+
+- name: Deploy latest version of keda
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig }}"
+    name: keda
+    chart_ref: kedacore/keda
+    chart_version: "{{ keda_version }}"
+    release_namespace: keda
+    values_files:
+      - /opt/rancher/rke2/helm-values/keda.values.yml
+  retries: 5
+  delay: 30
+  until: result is success
+  register: result
+  ignore_errors: true
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_keda and keda_custom_values is defined
+  tags: addons, keda
+
+- name: Fail if keda deployment fails after retries
+  fail:
+    msg: "keda deployment failed after multiple attempts."
+  when: result is failed and NODE_ROLE == "master" and INDEX == 1 and enable_keda
+  tags: addons, keda

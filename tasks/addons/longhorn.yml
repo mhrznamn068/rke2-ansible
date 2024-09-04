@@ -1,0 +1,60 @@
+---
+- name: Create namespace if it doesn't exist
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: longhorn-system
+  when: NODE_ROLE == "master" and INDEX == 1
+  tags: addons, longhorn
+
+- name: Deploy latest version of longhorn
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig }}"
+    name: longhorn
+    chart_ref: longhorn/longhorn
+    chart_version: "{{ longhorn_version }}"
+    release_namespace: longhorn-system
+  retries: 5
+  delay: 30
+  until: result is success
+  register: result
+  ignore_errors: true
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_longhorn and longhorn_custom_values is not defined
+  tags: addons, longhorn
+
+- name: Configure longhorn helm values
+  copy:
+    src: "{{ longhorn_custom_values }}"
+    dest: /opt/rancher/rke2/helm-values/longhorn.values.yml
+    owner: root
+    group: root
+    mode: 644
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_longhorn and longhorn_custom_values is defined
+  tags: addons, longhorn
+
+- name: Deploy latest version of longhorn
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig }}"
+    name: longhorn
+    chart_ref: longhorn/longhorn
+    chart_version: "{{ longhorn_version }}"
+    release_namespace: longhorn-system
+    values_files:
+      - /opt/rancher/rke2/helm-values/longhorn.values.yml
+  retries: 5
+  delay: 30
+  until: result is success
+  register: result
+  ignore_errors: true
+  when: NODE_ROLE == "master" and INDEX == 1 and enable_longhorn and longhorn_custom_values is defined
+  tags: addons, longhorn
+
+- name: Fail if longhorn deployment fails after retries
+  fail:
+    msg: "longhorn deployment failed after multiple attempts."
+  when: result is failed and NODE_ROLE == "master" and INDEX == 1 and enable_longhorn
+  tags: addons, longhorn

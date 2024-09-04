@@ -3,3 +3,4 @@
 - include: facts.yml
 - include: bootstrap.yml
 - include: config.yml
+- include: addons.yml

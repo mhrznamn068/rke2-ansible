@@ -1,2 +1,3 @@
 ---
 # defaults file for rke2
+kubeconfig: "/etc/rancher/rke2/rke2.yaml"

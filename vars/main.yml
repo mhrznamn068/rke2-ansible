@@ -4,6 +4,8 @@ CLUSTER_NAME: cluster1
 ENV: prod
 DIRECTORIES:
   - /etc/rancher/rke2
+  - /opt/rancher/rke2/manifest
+  - /opt/rancher/rke2/helm-values
 TOKEN: tyuiopghhccvbnmerdtfgyhujk
 RKE2_VERSION: v1.30.2+rke2r1
 MASTER1_IP: 10.100.10.0
@@ -12,3 +14,23 @@ MASTER3_IP: 10.100.10.2
 ROOT_DOMAIN: example.com
 DISABLE_SWAP: false
 KUBECTL_VERSION: v1.27.4
+enable_cert_manager: false
+cert_manager_version: "v1.7.1"
+enable_rancher: false
+rancher_version: 2.9.1
+# rancher_custom_values: "/path/to/local/values.yml"
+enable_longhorn: false
+longhorn_version: 1.7.0
+# longhorn_custom_values: "/path/to/local/values.yml"
+enable_prometheus: false
+prometheus_version: 25.27.0
+# prometheus_custom_values: "/path/to/local/values.yml"
+enable_keda: false
+keda_version: 2.15.1
+# keda_custom_values:
+enable_argocd: false
+argocd_version: 7.5.0
+# argocd_custom_values: "/path/to/local/values.yml"
+# rke2_ingress_nginx_config:
+#   - proxy-real-ip-cidr: 0.0.0.0/0
+#   - use-forwarded-headers: true

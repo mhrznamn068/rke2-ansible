@@ -1,0 +1,12 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: rke2-ingress-nginx
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    controller:
+        config:
+        {% for item in rke2_ingress_nginx_config %}
+        {{ item | to_nice_yaml | indent(5, true) | trim }}
+        {% endfor %}
