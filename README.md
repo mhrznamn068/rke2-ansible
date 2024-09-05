@@ -4,10 +4,20 @@ This Ansible role automates the installation and configuration of RKE2 (Rancher 
 
 ## Requirements
 
-- Ansible
+- Ansible version >= 2.15
 - Target systems should be running a supported version of Linux (e.g., Ubuntu )
 - User must have `sudo` privileges on the target hosts
 - Internet access on target hosts (for downloading RKE2 binaries)
+
+### Python Packages
+```bash
+pip install -r requirements.txt
+```
+
+### Ansible Collections
+```bash
+ansible-galaxy collection install -r collection.requirements.yml
+```
 
 ## Role Variables
 
@@ -19,7 +29,7 @@ This Ansible role automates the installation and configuration of RKE2 (Rancher 
  - `Prometheus`
  - `KEDA`
  - `ArgoCD`
- 
+
 ### Mandatory Variables:
 
 - `RKE2_VERSION`: Version of RKE2 to install (e.g., `v1.30.2+rke2r1`)

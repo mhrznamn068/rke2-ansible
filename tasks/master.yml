@@ -17,6 +17,10 @@
     name: rke2-server
     enabled: yes
 
+- debug:
+    msg: "Starting RKE2 server daemon in next step which will take 3-5 minutes"
+  when: INDEX == 1
+
 - name: Start RKE2 server service on first master node
   ansible.builtin.service:
     name: rke2-server
