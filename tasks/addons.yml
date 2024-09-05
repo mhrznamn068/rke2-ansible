@@ -1,4 +1,10 @@
 ---
+- name: Update and upgrade apt packages
+  become: true
+  apt:
+    update_cache: yes
+  tags: addons
+
 - name: Ensure Python pip is installed
   apt:
     name: python3-pip

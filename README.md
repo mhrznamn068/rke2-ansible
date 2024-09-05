@@ -12,18 +12,19 @@ This Ansible role automates the installation and configuration of RKE2 (Rancher 
 - Worker node resource requirements will vary based on the workload.
 
 ### Python Packages
+Download requirements from this role's Github Repo
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### Ansible Collections
+Download collection requirements from this role's Github Repo
+
 ```bash
 ansible-galaxy collection install -r collection.requirements.yml
 ```
-
-## Role Variables
-
-### AddOns List
+## AddOns List
 
  - `Cert Manager`
  - `Rancher`
@@ -31,6 +32,8 @@ ansible-galaxy collection install -r collection.requirements.yml
  - `Prometheus`
  - `KEDA`
  - `ArgoCD`
+
+## Role Variables
 
 ### Mandatory Variables:
 
@@ -45,6 +48,9 @@ ansible-galaxy collection install -r collection.requirements.yml
 
 
 ### Optional Variables:
+- `DIRECTORIES`: Configuration directory for RKE2 (default: `/etc/rancher/rke2`)
+- `DISABLE_SWAP`: Additional flags to enable and disable swap
+- `KUBECTL_VERSION`: Kubectl Version
 - `enable_cert_manager`: Enable Cert-Manager(https://cert-manager.io/)
 - `cert_manager_version`: Cert-Manager Helm Chart version
 - `enable_rancher`: Enable Rancher UI(https://www.rancher.com/)
@@ -64,12 +70,10 @@ ansible-galaxy collection install -r collection.requirements.yml
 - `argocd_custom_values`: Local file path to custom argoCD Helm Chart values
 - `rke2_ingress_nginx_config`: RKE2 Ingress Nginx custom configs(https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
 
+### Using Custom Helm Values for add-ons
+Use <addons>_custom_values optional variable to with value of local file path to Helm chart values.
 
-### Optional Variables:
 
-- `DIRECTORIES`: Configuration directory for RKE2 (default: `/etc/rancher/rke2`)
-- `DISABLE_SWAP`: Additional flags to enable and disable swap
-- `KUBECTL_VERSION`: Kubectl Version
 ### Example Configuration:
 #### Install Role from Anisble Galaxy
 ```bash

@@ -3,6 +3,13 @@
   hostname:
     name: "{{ CLUSTER_NAME }}-{{ ENV }}-{{ NODE_ROLE }}-{{ INDEX }}"
     use: systemd
+  tags: rke2, bootstrap
+
+- name: Update and upgrade apt packages
+  become: true
+  apt:
+    update_cache: yes
+  tags: rke2, bootstrap
 
 - name: Remove swapfile from /etc/fstab
   mount:
