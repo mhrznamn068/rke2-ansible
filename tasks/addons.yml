@@ -67,20 +67,20 @@
   when: (rke2_ingress_nginx_config is defined and rke2_ingress_nginx_config | length > 0) and (NODE_ROLE == "master" and INDEX == 1)
   tags: addons, rke2-ingress-nginx
 
-- include: "./addons/cert-manager.yml"
+- include_tasks: "./addons/cert-manager.yml"
   when: enable_cert_manager
 
-- include: "./addons/rancher.yml"
+- include_tasks: "./addons/rancher.yml"
   when: enable_rancher
 
-- include: "./addons/longhorn.yml"
+- include_tasks: "./addons/longhorn.yml"
   when: enable_longhorn
 
-- include: "./addons/prometheus.yml"
+- include_tasks: "./addons/prometheus.yml"
   when: enable_prometheus
 
-- include: "./addons/keda.yml"
+- include_tasks: "./addons/keda.yml"
   when: enable_keda
 
-- include: "./addons/argocd.yml"
+- include_tasks: "./addons/argocd.yml"
   when: enable_argocd

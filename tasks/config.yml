@@ -1,2 +1,2 @@
 ---
-- include: "{{ NODE_ROLE }}.yml"
+- include_tasks: "{{ NODE_ROLE }}.yml"
