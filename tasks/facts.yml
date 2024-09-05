@@ -20,3 +20,9 @@
 
 - name: IP Address
   debug: msg="{{ ansible_default_ipv4.address }}"
+
+- name: Find master nodes and create MASTER_IP var
+  set_fact:
+    "MASTER{{ hostvars[item]['INDEX'] }}_IP": "{{ hostvars[item]['ansible_host'] }}"
+  with_items: "{{ groups['master'] }}"
+  tags: facts

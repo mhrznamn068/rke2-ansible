@@ -6,9 +6,9 @@ server: https://{{MASTER1_IP}}:9345
 write-kubeconfig-mode: "0644"
 tls-san:
   - {{CLUSTER_NAME }}.{{ROOT_DOMAIN}}
-  - {{MASTER1_IP}}
-  - {{MASTER2_IP}}
-  - {{MASTER3_IP}}
+{% for i in range(1, groups['master'] | length + 1) %}
+  - {{ lookup('vars', 'MASTER' + i|string + '_IP') }}
+{% endfor %}
   - {{CLUSTER_NAME}}-{{ENV}}-{{NODE_ROLE}}-{{INDEX}}.{{ROOT_DOMAIN}}
   - {{CLUSTER_NAME}}-{{ENV}}-{{NODE_ROLE}}-{{INDEX}}.{{ROOT_DOMAIN}}
   - {{CLUSTER_NAME}}-{{ENV}}-{{NODE_ROLE}}-{{INDEX}}.{{ROOT_DOMAIN}}

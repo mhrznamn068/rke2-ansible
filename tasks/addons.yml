@@ -75,18 +75,24 @@
 
 - include_tasks: "./addons/cert-manager.yml"
   when: enable_cert_manager
+  tags: addons, cert-manager
 
 - include_tasks: "./addons/rancher.yml"
   when: enable_rancher
+  tags: addons, rancher
 
 - include_tasks: "./addons/longhorn.yml"
   when: enable_longhorn
+  tags: addons, longhorn
 
 - include_tasks: "./addons/prometheus.yml"
   when: enable_prometheus
+  tags: addons, prometheus
 
 - include_tasks: "./addons/keda.yml"
   when: enable_keda
+  tags: addons, keda
 
 - include_tasks: "./addons/argocd.yml"
   when: enable_argocd
+  tags: addons, argocd

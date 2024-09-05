@@ -1,2 +1,3 @@
 ---
 - include_tasks: "{{ NODE_ROLE }}.yml"
+  tags: config, master, worker

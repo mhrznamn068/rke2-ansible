@@ -41,9 +41,6 @@ ansible-galaxy collection install -r collection.requirements.yml
 - `CLUSTER_NAME`: Name of the Kubernetes cluster
 - `ENV`: Define the environment of the cluster `dev`, `prod`
 - `TOKEN`: Shared token for authenticating RKE2 nodes
-- `MASTER1_IP`: Master Node 1 IP Address
-- `MASTER2_IP`: Master Node 2 IP Address
-- `MASTER3_IP`: Master Node 3 IP Address
 - `ROOT_DOMAIN`: Root Domain to add in TLS SAN of master node
 
 
@@ -93,9 +90,6 @@ ansible-galaxy role install mhrznamn068.rke2-ansible
         CLUSTER_NAME: "my-kubernetes-cluster"
         ENV: "prod"
         TOKEN: "your-shared-token"
-        MASTER1_IP: "10.100.10.0"
-        MASTER2_IP: "10.100.10.1"
-        MASTER3_IP: "10.100.10.2"
         ROOT_DOMAIN: "example.com"
         enable_cert_manager: false
         cert_manager_version: "v1.7.1"
