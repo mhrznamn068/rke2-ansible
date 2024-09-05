@@ -8,6 +8,8 @@ This Ansible role automates the installation and configuration of RKE2 (Rancher 
 - Target systems should be running a supported version of Linux (e.g., Ubuntu )
 - User must have `sudo` privileges on the target hosts
 - Internet access on target hosts (for downloading RKE2 binaries)
+- Minimum of 2 vCPUs and 2 GB of memory for the master node.
+- Worker node resource requirements will vary based on the workload.
 
 ### Python Packages
 ```bash
