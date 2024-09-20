@@ -5,4 +5,4 @@
 
 - include_tasks: "{{ NODE_ROLE }}.yml"
   tags: config, loadbalancer
-  when: NODE_ROLE = "loadbalancer" and enable_loadbalancer 
+  when: NODE_ROLE == "loadbalancer" and enable_loadbalancer 

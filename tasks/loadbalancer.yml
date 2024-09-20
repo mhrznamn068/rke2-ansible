@@ -1,11 +1,13 @@
 - name: Update apt cache
   apt: name=aptitude update_cache=yes state=latest force_apt_get=yes
+  tags: loadbalancer
 
 - name: Install Nginx
   apt: 
    name: nginx
    state: present
    update_cache: yes
+  tags: loadbalancer
   
 - name: Ensure required directory exists.
   file:
@@ -14,19 +16,19 @@
   loop:
     - /etc/nginx/sites-available
     - "/etc/nginx/ssl/{{ ROOT_DOMAIN }}"
-  tags: nginx, directory
+  tags: nginx, directory, loadbalancer
 
 - name: Remove default configuration
   file: >
     path=/etc/nginx/sites-enabled/default
     state=absent
-  tags: nginx, default
+  tags: nginx, default, loadbalancer
 
 - name: Delete nginx default file
   file:
     path: "/etc/nginx/sites-available/default"
     state: absent
-  tags: nginx, default
+  tags: nginx, default, loadbalancer
 
 - name: Generate Nginx config templates
   template:
@@ -34,6 +36,7 @@
     dest: "{{ item.dest }}"
   loop:
     - {src: "./templates/configs/nginx/default.conf.j2", dest: "/etc/nginx/sites-available/default.conf"}
+  tags: loadbalancer
 
 - name: Copy SSL certificate to Nginx
   file:
@@ -42,6 +45,7 @@
   loop:
     - { src: "{{ ssl_certificate_path }}", dest: "/etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_cert.pem"}
     - { src: "{{ ssl_certificate_path }}", dest: "/etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_key.pem"}
+  tags: loadbalancer
 
 - name: create symlink of configuartion
   file:
@@ -49,3 +53,4 @@
     dest: '/etc/nginx/sites-enabled/default.conf'
     state: link
   notify: Reload Nginx
+  tags: loadbalancer

@@ -5,6 +5,6 @@
 - include_tasks: bootstrap.yml
   tags: bootstrap
 - include_tasks: config.yml
-  tags: config, master, worker
+  tags: config, master, worker, loadbalancer
 - include_tasks: addons.yml
   tags: addons
