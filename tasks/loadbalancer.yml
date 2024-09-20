@@ -47,7 +47,7 @@
     mode: 644
   loop:
     - { src: "{{ ssl_certificate_path }}", dest: "/etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_cert.pem"}
-    - { src: "{{ ssl_certificate_path }}", dest: "/etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_key.pem"}
+    - { src: "{{ ssl_private_key_path }}", dest: "/etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_key.pem"}
   tags: loadbalancer
 
 - name: create symlink of configuartion
