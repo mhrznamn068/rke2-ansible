@@ -1,3 +1,8 @@
 ---
 - include_tasks: "{{ NODE_ROLE }}.yml"
   tags: config, master, worker
+  when: NODE_ROLE != "loadbalancer"
+
+- include_tasks: "{{ NODE_ROLE }}.yml"
+  tags: config, loadbalancer
+  when: NODE_ROLE = "loadbalancer" and enable_loadbalancer 

@@ -48,6 +48,9 @@ ansible-galaxy collection install -r collection.requirements.yml
 - `DIRECTORIES`: Configuration directory for RKE2 (default: `/etc/rancher/rke2`)
 - `DISABLE_SWAP`: Additional flags to enable and disable swap
 - `KUBECTL_VERSION`: Kubectl Version
+- `enable_loadbalancer`: Enable external loadbalancer(Nginx)
+- `ssl_certificate_path`: Local file path to SSL certificate for external loadbalancer
+- `ssl_private_key_path`: Local file path to SSL private key for external loadbalancer
 - `enable_cert_manager`: Enable Cert-Manager(https://cert-manager.io/)
 - `cert_manager_version`: Cert-Manager Helm Chart version
 - `enable_rancher`: Enable Rancher UI(https://www.rancher.com/)
@@ -70,6 +73,8 @@ ansible-galaxy collection install -r collection.requirements.yml
 ### Using Custom Helm Values for add-ons
 Use <addons>_custom_values optional variable to with value of local file path to Helm chart values.
 
+### Role of External Loadbalancer
+An external load balancer can distribute requests from worker nodes to the master node, user requests to the Rancher UI, and user requests to the Kubernetes API server.
 
 ### Example Configuration:
 #### Install Role from Anisble Galaxy

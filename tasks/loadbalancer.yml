@@ -1,0 +1,51 @@
+- name: Update apt cache
+  apt: name=aptitude update_cache=yes state=latest force_apt_get=yes
+
+- name: Install Nginx
+  apt: 
+   name: nginx
+   state: present
+   update_cache: yes
+  
+- name: Ensure required directory exists.
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - /etc/nginx/sites-available
+    - "/etc/nginx/ssl/{{ ROOT_DOMAIN }}"
+  tags: nginx, directory
+
+- name: Remove default configuration
+  file: >
+    path=/etc/nginx/sites-enabled/default
+    state=absent
+  tags: nginx, default
+
+- name: Delete nginx default file
+  file:
+    path: "/etc/nginx/sites-available/default"
+    state: absent
+  tags: nginx, default
+
+- name: Generate Nginx config templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - {src: "./templates/configs/nginx/default.conf.j2", dest: "/etc/nginx/sites-available/default.conf"}
+
+- name: Copy SSL certificate to Nginx
+  file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: "{{ ssl_certificate_path }}", dest: "/etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_cert.pem"}
+    - { src: "{{ ssl_certificate_path }}", dest: "/etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_key.pem"}
+
+- name: create symlink of configuartion
+  file:
+    src: '/etc/nginx/sites-available/default.conf'
+    dest: '/etc/nginx/sites-enabled/default.conf'
+    state: link
+  notify: Reload Nginx
