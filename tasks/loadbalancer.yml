@@ -39,9 +39,12 @@
   tags: loadbalancer
 
 - name: Copy SSL certificate to Nginx
-  file:
+  copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 644
   loop:
     - { src: "{{ ssl_certificate_path }}", dest: "/etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_cert.pem"}
     - { src: "{{ ssl_certificate_path }}", dest: "/etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_key.pem"}
