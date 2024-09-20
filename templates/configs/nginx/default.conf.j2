@@ -1,0 +1,71 @@
+upstream rke2_server {
+    least_conn;
+    {% for i in range(1, groups['master'] | length + 1) %}
+    server {{ lookup('vars', 'MASTER' + i|string + '_IP') }}:9345 max_fails=3 fail_timeout=5s;
+    {% endfor %}
+}
+
+upstream apiserver {
+    least_conn;
+    {% for i in range(1, groups['master'] | length + 1) %}
+    server {{ lookup('vars', 'MASTER' + i|string + '_IP') }}:6443 max_fails=3 fail_timeout=5s;
+    {% endfor %}
+}
+
+upstream rancher_http {
+    least_conn;
+    {% for i in range(1, groups['master'] | length + 1) %}
+    server {{ lookup('vars', 'MASTER' + i|string + '_IP') }}:80 max_fails=3 fail_timeout=5s;
+    {% endfor %}
+}
+
+upstream rancher_https {
+    least_conn;
+    {% for i in range(1, groups['master'] | length + 1) %}
+    server {{ lookup('vars', 'MASTER' + i|string + '_IP') }}:443 max_fails=3 fail_timeout=5s;
+    {% endfor %}
+}
+
+server {
+    listen 9345 ssl;
+    server_name _;
+    ssl_certificate /etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_cert.pem;
+	ssl_certificate_key /etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_key.pem;
+    location / {
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Host $host:$server_port;
+		proxy_set_header X-Forwarded-Server $host;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		proxy_set_header Host {{MASTER1_IP}};
+		proxy_pass https://rke2_server;
+		proxy_redirect default;
+	}
+}
+server {
+    listen 6443 ssl;
+    server_name _;
+    ssl_certificate /etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_cert.pem;
+	ssl_certificate_key /etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_key.pem;
+    location / {
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Host $host:$server_port;
+		proxy_set_header X-Forwarded-Server $host;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		proxy_set_header Host $http_host;
+		proxy_pass https://apiserver;
+		proxy_redirect default;
+	}
+}
+
+server {
+    listen 443 ssl;
+    server_name _;
+    ssl_certificate /etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_cert.pem;
+	ssl_certificate_key /etc/nginx/ssl/{{ ROOT_DOMAIN }}/{{ ROOT_DOMAIN }}_key.pem;
+    location / {
+      proxy_set_header Host {{ CLUSTER_NAME}}.{{ ROOT_DOMAIN }};
+      proxy_pass https://rancher_https;
+      proxy_redirect default;
+    }
+}
+
