@@ -96,6 +96,7 @@ ansible-galaxy role install mhrznamn068.rke2-ansible
         ENV: "prod"
         TOKEN: "your-shared-token"
         ROOT_DOMAIN: "example.com"
+        enable_loadbalancer: false
         enable_cert_manager: false
         cert_manager_version: "v1.7.1"
         enable_rancher: true
