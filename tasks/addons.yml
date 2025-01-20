@@ -5,40 +5,46 @@
     update_cache: yes
   tags: addons
 
-- name: Ensure Python pip is installed
+- name: Ensure Python and pip are installed
   apt:
-    name: python3-pip
+    name: 
+      - python3
+      - python3-pip
+      - python3-venv
     state: present
   become: true
   tags: addons
 
-- name: Install Kubernetes Python library
-  pip:
-    name: "{{ item }}"
-    state: present
+- name: Create a virtual environment for Python
+  ansible.builtin.command: python3 -m venv /opt/venv_k8s
+  args:
+    creates: /opt/venv_k8s/bin/activate
   become: true
-  loop:
-    - kubernetes
+  tags: addons
+
+- name: Install Kubernetes Python library in venv
+  ansible.builtin.command: /opt/venv_k8s/bin/pip install kubernetes
+  become: true
+  tags: addons
+
+- name: Set environment variable for using venv in subsequent tasks
+  set_fact:
+    venv_activate: "source /opt/venv_k8s/bin/activate"
   tags: addons
 
 - name: Create cattle-system namespace if it doesn't exist
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig }}"
-    state: present
-    definition:
+  ansible.builtin.command: "{{ venv_activate }} && kubectl apply -f -"
+  args:
+    stdin: |
       apiVersion: v1
       kind: Namespace
       metadata:
-        name: "{{ item }}"
-  loop:
-    - clusterops
+        name: clusterops
   when: NODE_ROLE == "master" and INDEX == 1
   tags: addons, namespace
 
 - name: Add stable chart repo
-  kubernetes.core.helm_repository:
-    name: "{{ item.name }}"
-    repo_url: "{{ item.chart }}"
+  ansible.builtin.command: "{{ venv_activate }} && helm repo add {{ item.name }} {{ item.chart }}"
   loop:
     - {name: "rancher-stable", chart: "https://releases.rancher.com/server-charts/stable"}
     - {name: "jetstack", chart: "https://charts.jetstack.io"}
@@ -46,10 +52,10 @@
     - {name: "prometheus-community", chart: "https://prometheus-community.github.io/helm-charts"}
     - {name: "kedacore", chart: "https://kedacore.github.io/charts"}
     - {name: "argo", chart: "https://argoproj.github.io/argo-helm"}
-  tags: addons, helmrepo
   when: NODE_ROLE == "master" and INDEX == 1
+  tags: addons, helmrepo
 
-- name: Download cert-manager crd manifest to the cluster.
+- name: Download cert-manager crd manifest to the cluster
   ansible.builtin.get_url:
     url: "https://github.com/cert-manager/cert-manager/releases/download/{{ cert_manager_version }}/cert-manager.crds.yaml"
     dest: /opt/rancher/rke2/manifest/cert-manager.crds.yaml
@@ -57,12 +63,8 @@
   when: NODE_ROLE == "master" and INDEX == 1 and ( enable_cert_manager or enable_rancher )
   tags: addons, cert-manager, rancher
 
-- name: Apply cert-manager crd manifest to the cluster.
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig }}"
-    state: present
-    src: /opt/rancher/rke2/manifest/cert-manager.crds.yaml
-    namespace: cert-manager
+- name: Apply cert-manager crd manifest to the cluster
+  ansible.builtin.command: "{{ venv_activate }} && kubectl apply -f /opt/rancher/rke2/manifest/cert-manager.crds.yaml"
   when: NODE_ROLE == "master" and INDEX == 1 and ( enable_cert_manager or enable_rancher )
   tags: addons, cert-manager, rancher
 
