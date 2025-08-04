@@ -70,7 +70,7 @@
   template:
     src: addons/rke2-ingress-nginx/config.yml.j2
     dest: /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx-config.yaml
-  when: (rke2_ingress_nginx_config is defined and rke2_ingress_nginx_config | length > 0) and (NODE_ROLE == "master" and INDEX == 1)
+  when: (rke2_ingress_nginx_config is defined and rke2_ingress_nginx_config | length > 0) and (NODE_ROLE == "master")
   tags: addons, rke2-ingress-nginx
 
 - include_tasks: "./addons/cert-manager.yml"
